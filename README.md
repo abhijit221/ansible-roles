@@ -18,7 +18,7 @@ We recommend using [Ansible Vault](https://docs.ansible.com/ansible/playbooks_va
 
 The list contains included roles, supported OS, parameter files, and a brief description.
 
-Role      | OS Family     | Config        | Description
+Role      | OS Family     | Param         | Description
 ----------|---------------|---------------|------------------------------
 bro       |RedHat,Debian  | None          | Run Bro in a Docker container
 common    |RedHat         |group_vars/all |
