@@ -1,0 +1,9 @@
+---
+
+- name: Format EBS Volume for Drone
+  filesystem: fstype=ext4 dev=/dev/xvdb force=no
+  when: inventory_hostname_short == "ci" and ansible_devices.xvdb is defined
+
+- name: Mount EBS Volume in Docker location
+  mount: name=/var/lib/docker src='/dev/xvdb' fstype=ext4 state=mounted
+  when: inventory_hostname_short == "ci" and ansible_devices.xvdb is defined

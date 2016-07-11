@@ -1,0 +1,17 @@
+---
+
+- name: Include Unbound Role
+  include: unbound-apt.yml
+  tags: unbound
+  when: ansible_distribution == "Ubuntu"
+
+- name: Include Unbound Role
+  include: unbound-yum.yml
+  tags: unbound
+  when: ansible_distribution == "CentOS"
+
+# Enable service
+- name: Enable Unbound service
+  service: name=unbound enabled=yes
+- name: Start Unbound service
+  service: name=unbound state=started

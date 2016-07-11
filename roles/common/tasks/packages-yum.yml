@@ -1,0 +1,19 @@
+---
+
+- name: Install EPEL
+  yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm state=present
+  when: ansible_distribution != "Amazon" 
+
+- name: Upgrade all packages to the lastest version
+  yum: name=* state=latest
+
+- yum: name={{ item }} state=present update_cache=yes
+  with_items:
+    - bind-utils
+    - expect
+    - git
+    - htop
+    - net-tools
+    - sysstat
+    - tcpdump
+    - vim

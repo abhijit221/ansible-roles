@@ -1,0 +1,6 @@
+---
+
+drone:
+  org: company
+  id: blah
+  secret: blah

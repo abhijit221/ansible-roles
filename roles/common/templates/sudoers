@@ -1,0 +1,10 @@
+# This file is managed by Ansible.
+# Do NOT modify this file directly.
+
+Defaults      !lecture,tty_tickets,!fqdn
+
+# User privilege specification
+root          ALL=(ALL) ALL
+
+# Members of the group 'sysadmin' may gain root privileges
+%{{ group['admin'] }} ALL=(ALL) ALL

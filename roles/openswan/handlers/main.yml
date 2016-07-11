@@ -1,0 +1,7 @@
+---
+
+- name: restart xl2tpd
+  service: name=xl2tpd state=restarted
+
+- name: restart ipsec
+  service: name=ipsec state=restarted

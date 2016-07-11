@@ -1,0 +1,39 @@
+---
+
+- name: Create Drone database directory
+  file: path={{item}} state=directory
+  with_items:
+    - /var/lib/drone
+
+- name: Create drone container
+  docker_container:
+    docker_api_version: 1.21
+    name: drone
+    image: drone/drone
+    state: present
+    pull: yes
+    network_mode: default
+    ports: 
+    - "8000:8000"
+    volumes:
+    - "/var/lib/drone:/var/lib/drone"
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    env:
+      HOSTNAME: "{{ servers['ci']['dns'] }}"
+      REMOTE_DRIVER: github
+      REMOTE_CONFIG: "https://github.com?client_id={{ drone['id'] }}&client_secret={{ drone['secret'] }}&orgs={{ drone['org'] }}"
+      DATABASE_DRIVER: sqlite3
+      DATABASE_CONFIG: /var/lib/drone/drone.sqlite
+      DRONE_GITHUB_CLIENT: "{{ drone['id'] }}"
+      DRONE_GITHUB_SECRET: "{{ drone['secret'] }}"
+      #DEBUG: true
+
+- name: Install Drone Container SystemD Unit file
+  copy: src=drone.systemd dest=/usr/lib/systemd/system/drone.service owner=root group=root mode=0644
+
+# Enable service
+- name: Enable Drone service
+  service: name=drone enabled=yes
+- name: Start Drone service
+  service: name=drone state=started
+

@@ -1,0 +1,12 @@
+---
+# Include the task lists that make up the common role
+- include: cron.yml
+  tags: cron
+- include: hostname.yml
+  tags: hostname
+- include: packages.yml
+  tags: packages
+- include: users.yml
+  tags: users
+- include: sudo.yml
+  tags: sudo

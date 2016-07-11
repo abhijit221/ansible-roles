@@ -1,0 +1,46 @@
+[duo]
+; Required configuration
+
+; Duo integration key
+ikey = {{ integration_key }}
+; Duo secret key
+skey = {{ secret_key }}
+; Duo API hostname
+host = {{ api_hostname }}
+
+; Optional configuration
+
+; Duo authentication is required only for users whose groups are specified
+groups = {{ group['admin'] }}
+
+; On service or configuration errors that prevent Duo authentication, fail “safe”
+; (allow access) or “secure” (deny access). The default is “safe”.
+failmode = {{ failmode }}
+
+pushinfo = {{ pushinfo }}
+autopush = {{ autopush }}
+motd = {{ motd }}
+
+; When configured with autopush = yes, we recommend setting prompts = 1.
+prompts = {{ prompts }}
+
+; Look for factor selection or passcode in the $DUO_PASSCODE environment variable
+; before prompting the user for input. When $DUO_PASSCODE is non-empty, it will
+; override autopush.
+; The SSH client will need SendEnv DUO_PASSCODE in its configuration, and the SSH
+; server will similarily need AcceptEnv DUO_PASSCODE.
+; Default is "no".
+accept_env_factor = {{ accept_env_factor }}
+
+; Duo Unix reports the IP address of the authorizing user, for the purposes of
+; authorization and whitelisting. If Duo Unix cannot detect the IP address of the
+; client, setting fallback_local_ip = yes will cause Duo Unix to send the IP
+; address of the server it is running on.
+; If you are using IP whitelisting, enabling this option could cause unauthorized
+; logins if the local IP is listed in the whitelist.
+; Set to the number of seconds to wait for HTTPS responses from Duo Security. If
+; Duo Security takes longer than the configured number of seconds to respond to
+; the preauth API call, the configured failmode is triggered. Other network
+; operations such as DNS resolution, TCP connection establishment, and the SSL
+; handshake have their own independent timeout and retry logic.
+fallback_local_ip = {{ fallback_local_ip }}

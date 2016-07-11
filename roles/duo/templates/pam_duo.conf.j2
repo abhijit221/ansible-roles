@@ -1,0 +1,26 @@
+[duo]
+; Required configuration
+
+; Duo integration key
+ikey = {{ integration_key }}
+; Duo secret key
+skey = {{ secret_key }}
+; Duo API hostname
+host = {{ api_hostname }}
+
+; Either “yes” or “no”. Default is “no”. If “yes”, Duo Unix will automatically
+; send a push login request to the user’s phone, falling back on a phone call if
+; push is unavailable. If “no”, the user will be prompted to choose an
+; authentication method.
+; When configured with autopush = yes, we recommend setting prompts = 1.
+
+autopush = {{ autopush }}
+
+; Look for factor selection or passcode in the $DUO_PASSCODE environment variable
+; before prompting the user for input. When $DUO_PASSCODE is non-empty, it will
+; override autopush.
+; The SSH client will need SendEnv DUO_PASSCODE in its configuration, and the SSH
+; server will similarily need AcceptEnv DUO_PASSCODE.
+; Default is "no".
+
+accept_env_factor = {{ accept_env_factor }}

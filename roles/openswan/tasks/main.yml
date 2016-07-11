@@ -1,0 +1,78 @@
+---
+
+- name: Install OpenSWAN and XL2TPD
+  yum: name={{item}} enablerepo=epel state=present
+  with_items:
+  - openswan 
+  - xl2tpd
+
+- name: Start IPSEC service
+  service: name=ipsec state=started
+
+- name: Copy XL2TPD Configuration
+  template: src=xl2tpd.conf.j2 dest=/etc/xl2tpd/xl2tpd.conf mode=0644
+  notify:
+  - restart xl2tpd 
+
+- name: Copy PPP Configuration
+  template: src=options.xl2tpd.j2 dest=/etc/ppp/options.xl2tpd mode=0644
+  notify:
+  - restart xl2tpd 
+
+- name: Copy PAP Configuration
+  template: src=pap-secrets.j2 dest=/etc/ppp/pap-secrets  mode=0600
+  notify:
+  - restart xl2tpd 
+
+- name: Copy PPP PAM Configuration
+  template: src=ppp.pam.j2 dest=/etc/pam.d/ppp  mode=0644
+
+- name: Enable IP Forwarding
+  sysctl: name="net.ipv4.ip_forward" value=1 sysctl_set=yes state=present ignoreerrors=yes
+
+- name: Disable Sending of IP Redirects
+  sysctl: name="net.ipv4.conf.{{item}}.send_redirects" value=0 state=present sysctl_set=yes ignoreerrors=yes
+  with_items:
+  - all
+  - default
+  - "{{ ansible_interfaces }}"
+
+- name: Disable Acceptance of IP Redirects
+  sysctl: name="net.ipv4.conf.{{item}}.accept_redirects" value=0 state=present sysctl_set=yes ignoreerrors=yes
+  with_items:
+  - all
+  - default
+  - "{{ ansible_interfaces }}"
+
+- name: Disable Reverse Forward filter
+  sysctl: name="net.ipv4.conf.{{item}}.rp_filter" value=0 state=present sysctl_set=yes ignoreerrors=yes
+  with_items:
+  - all
+  - default
+  - ip_vti0
+  - "{{ ansible_interfaces }}"
+
+- name: Enable Proxy ARP
+  sysctl: name="net.ipv4.conf.{{item}}.proxy_arp" value=1 state=present sysctl_set=yes ignoreerrors=yes
+  with_items:
+  - all
+  - default
+  - "{{ ansible_interfaces }}"
+
+- name: Copy IPSEC configuration
+  template: src=ipsec.conf.j2 dest=/etc/ipsec.conf mode=0644 validate='ipsec verify %s'
+  notify:
+  - restart ipsec
+
+- name: Copy IPSEC Secrets
+  template: src=ipsec.secrets.j2 dest=/etc/ipsec.d/komand.secrets mode=0600 validate='ipsec verify %s'
+  notify:
+  - restart ipsec
+
+- name: Enable XL2TPD service
+  service: name=xl2tpd enabled=yes
+- name: Start XL2TPD service
+  service: name=xl2tpd state=started
+
+- name: Enable IPSEC service
+  service: name=ipsec enabled=yes

@@ -1,0 +1,16 @@
+---
+- name: Update package lists
+  apt: update_cache=yes
+
+- name: Upgrade all packages to the lastest version
+  apt: upgrade=dist
+
+- apt: name={{ item }} state=present install_recommends=no
+  with_items:
+    - build-essential
+    - git
+    - htop
+    - sysstat
+    - tcpdump
+    - vim
+    - whois

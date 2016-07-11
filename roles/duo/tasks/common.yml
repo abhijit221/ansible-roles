@@ -1,0 +1,30 @@
+---
+
+- name: Configure /etc/duo permissions
+  file: path=/etc/duo state=directory owner=root group=root mode=0755
+
+- name: Add Duo Login configuration
+  template: src=login_duo.conf.j2 dest=/etc/duo/login_duo.conf owner=sshd group=root mode=0400
+
+- name: Add Duo Pam configuration
+  template: src=pam_duo.conf.j2 dest=/etc/duo/pam_duo.conf owner=root group=root mode=0400
+
+- name: Applying recommended sshd_config
+  lineinfile:
+    dest=/etc/ssh/sshd_config
+    state=present
+    regexp=^{{ item.key }}
+    line="{{ item.key }} {{ item.value }}"
+    insertafter=EOF
+  with_items:
+    - { key: 'PermitRootLogin',                 value: 'no' }
+    - { key: 'PermitTunnel',                    value: 'no' }
+    - { key: 'AllowTcpForwarding',              value: 'no' }
+    - { key: 'UsePAM',                          value: 'yes' }
+    - { key: 'ForceCommand',                    value: '/usr/sbin/login_duo' }
+    - { key: 'PubkeyAuthentication',            value: 'yes' }
+    - { key: 'PasswordAuthentication',          value: 'no' }
+    - { key: 'ChallengeResponseAuthentication', value: 'yes' }
+    - { key: 'UseDNS',                          value: 'no' }
+    - { key: 'AcceptEnv',                       value: 'DUO_PASSCODE' }
+  notify: restart sshd

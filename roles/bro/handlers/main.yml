@@ -1,0 +1,4 @@
+---
+
+  - name: restart bro
+    service: name=bro state=restarted

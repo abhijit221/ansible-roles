@@ -1,0 +1,14 @@
+---
+
+- name: Include UFW Role
+  include: ufw.yml
+  tags: [ 'firewall', 'ufw' ]
+  when: ansible_distribution == "Ubuntu"
+  sudo: yes
+
+# Replace with iptables
+- name: Include Firewalld Role
+  include: firewalld.yml
+  tags: [ 'firewall', 'firewalld' ]
+  when: ansible_distribution == "CentOS"
+  sudo: yes

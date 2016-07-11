@@ -1,0 +1,28 @@
+---
+
+# Flush existing rules so we can start fresh
+- shell: ufw --force reset
+  when: inventory_hostname_short != "vagrant"
+
+# Rules
+- name: Allow SSH from Vagrant host
+  ufw: rule=allow port=22 proto=tcp direction=in src=10.0.2.0/24
+  when: inventory_hostname_short == "vagrant"
+
+- name: Allow SSH to Bastion
+  ufw: rule=allow port=22 proto=tcp
+  when: inventory_hostname_short == "bastion"
+
+- name: Allow SSH from Bastion
+  ufw: rule=allow port=22 proto=tcp src={{ servers['bastion']['ip'] }}
+  when: inventory_hostname_short != "bastion"
+
+# Configure default deny policy
+- ufw: state=enabled policy=reject proto=any
+- ufw: logging=on
+
+# Enable service
+- name: Enable UFW
+  service: name=ufw enabled=yes
+- name: Start UFW
+  service: name=ufw state=started

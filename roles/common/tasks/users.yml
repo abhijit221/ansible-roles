@@ -1,0 +1,15 @@
+---
+- name: Create {{ group['admin'] }} group
+  group: name={{ group['admin'] }} gid=2300 state=present
+
+- name: Create users
+  user: name={{item.key}} uid={{item.value.uid}} shell={{item.value.shell}} password={{item.value.password}} groups={{ group['admin'] }}
+  with_dict: "{{ users }}"
+
+- authorized_key: user={{item.key}} key={{item.value.sshkey}} state=present
+  with_dict: "{{ users }}"
+
+- name: Remove users
+  user: name={{item}} state=absent remove=yes
+  with_items:
+    - baduser

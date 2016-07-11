@@ -1,0 +1,27 @@
+---
+
+- name: Install Unbound
+  apt: name=unbound state=present install_recommends=no
+
+- name: Allow DNS requests from localhost
+  ufw: rule=allow port=53 proto=any direction=in src=127.0.0.1
+
+- name: Remove old Unbound Sysvinit script
+  file: path=/etc/init.d/unbound state=absent
+
+- name: Configure Unbound
+  copy: src=unbound.upstart dest=/etc/init/unbound.conf owner=root group=root mode=0644
+
+- name: Configure Unbound
+  template: src=unbound.conf.j2 dest=/etc/unbound/unbound.conf.d/unbound.conf owner=root group=root mode=0644
+  notify:
+    - restart unbound
+
+- name: Configure Resolver
+  template: src=resolv.conf.j2 dest=/etc/resolv.conf owner=root group=root mode=0644
+
+# Enable service
+- name: Enable Unbound service
+  service: name=unbound enabled=yes
+- name: Start Unbound service
+  service: name=unbound state=started

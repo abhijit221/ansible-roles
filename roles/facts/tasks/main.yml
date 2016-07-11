@@ -1,0 +1,10 @@
+---
+
+- name: Create Ansible Facts directory
+  file: path=/etc/ansible/facts.d recurse=yes state=directory
+
+- name: Install custom facts
+  copy: src=facts/ dest=/etc/ansible/facts.d mode=0755
+
+- name: Reload ansible_local facts
+  setup: filter=ansible_local

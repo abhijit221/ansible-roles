@@ -1,0 +1,11 @@
+integration_key: blah
+secret_key: blah
+api_hostname: api-blah.duosecurity.com
+failmode: 'safe'
+pushinfo: 'yes'
+autopush: 'yes'
+motd: 'no'
+prompts: 1
+accept_env_factor: 'yes'
+use_pam: 'yes'
+fallback_local_ip: 'yes'

@@ -1,0 +1,14 @@
+---
+
+- name: Create primary interface peristent routes file
+  file: path=/etc/sysconfig/network-scripts/route-eth0 state=touch mode=0644
+
+- name: Add VPN Routes
+  lineinfile: dest=/etc/sysconfig/network-scripts/route-eth0
+             state=present regexp=^10.0.0.240
+             line="10.0.0.240/28 via {{ hostvars['vpn.company.com']['ansible_eth0']['ipv4']['address'] }} dev eth0"
+             insertafter=EOF
+  when: inventory_hostname_short != "vpn"
+  notify:
+    - restart network
+

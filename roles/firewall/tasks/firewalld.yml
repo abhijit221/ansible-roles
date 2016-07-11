@@ -1,0 +1,19 @@
+---
+
+# Install Firewalld
+- name: Install Firewalld
+  yum: name=firewalld state=present update_cache=yes
+
+# Enable service
+- name: Enable Firewalld
+  service: name=firewalld enabled=yes
+- name: Start Firewalld
+  service: name=firewalld state=started
+
+# Rules
+- name: Allow SSH from Vagrant host
+  firewalld: port=22/tcp permanent=true state=enabled source='10.0.2.0/24' immediate=yes
+  when: inventory_hostname_short == "vagrant"
+
+- name: Allow SSH from all hosts
+  firewalld: port=22/tcp permanent=true state=enabled immediate=yes

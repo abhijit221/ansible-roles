@@ -1,0 +1,2 @@
+---
+- copy: src=cronic dest=/usr/local/bin/cronic owner=root group=root mode=755

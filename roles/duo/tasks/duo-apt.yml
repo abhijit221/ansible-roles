@@ -1,0 +1,24 @@
+---
+
+- name: Add Duo apt key
+  apt_key: url=https://duo.com/APT-GPG-KEY-DUO state=present validate_certs=False
+
+- name: Touch apt file
+  file: path=/etc/apt/sources.list.d/duosecurity.list state=touch owner=root group=root mode=0644
+  
+- name: Add Duo repository to apt file
+  lineinfile: dest=/etc/apt/sources.list.d/duosecurity.list line="deb http://pkg.duosecurity.com/{{ ansible_distribution }} {{ ansible_distribution_release }} main"
+
+- name: Install Duo package
+  apt: name=duo-unix state=installed update_cache=yes
+
+- name: Configure /etc/duo permissions
+  file: path=/etc/duo state=directory owner=root group=root mode=0755
+
+- name: Enable duo security for remote logins
+  lineinfile: dest=/etc/ssh/sshd_config regexp=^ForceCommand line="ForceCommand /usr/sbin/login_duo"
+  notify:
+  - restart sshd
+
+- name: Configure PAM sshd for Duo
+  lineinfile: dest=/etc/pam.d/sshd regexp="^auth required /lib64/security/pam_duo.so" insertbefore=BOF line="auth required /lib64/security/pam_duo.so"

@@ -1,0 +1,35 @@
+---
+
+- name: Creates directory
+  file: path={{item}} state=directory
+  with_items:
+    - /opt/bro
+    - /opt/bro/logs
+    - /opt/bro/logs/spool
+
+- name: Copy Bro Configurations
+  copy: src=bro-config/ dest=/opt/bro owner=root group=root mode=0644
+  notify:
+      - restart bro
+
+- name: Create Bro container
+  docker_container:
+    docker_api_version: 1.21
+    name: bro
+    image: draconyx/bro
+    state: present
+    pull: yes
+    network_mode: host
+    volumes:
+    - "/opt/bro/etc:/opt/bro/etc:ro"
+    - "/opt/bro/logs:/opt/bro/logs:rw"
+
+- name: Install Bro Container SystemD Unit file
+  copy: src=bro.systemd dest=/usr/lib/systemd/system/bro.service owner=root group=root mode=0644
+
+# Enable service
+- name: Enable Bro service
+  service: name=bro enabled=yes
+- name: Start Bro service
+  service: name=bro state=started
+

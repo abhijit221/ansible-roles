@@ -1,0 +1,19 @@
+---
+
+- name: Install RNG Tools
+  yum: name=rng-tools state=present
+
+- name: RNGD should read from /dev/urandom for lack of hardware support
+  lineinfile: dest=/etc/sysconfig/rngd
+             state=present regexp=^EXTRAOPTIONS 
+             line='EXTRAOPTIONS="--no-tpm=1 --quiet -r /dev/urandom"'
+             insertafter=EOF
+  when: ansible_distribution == "Amazon"
+
+- name: Enable RNGD service
+  service: name=rngd enabled=yes
+
+- name: Enable RNGD service
+  service: name=rngd enabled=yes
+- name: Start RNGD service
+  service: name=rngd state=started

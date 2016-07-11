@@ -1,0 +1,33 @@
+---
+
+- name: Add Duo YUM Repo
+  file: path=/etc/yum.repos.d/duosecurity.repo state=touch owner=root group=root mode=0644
+
+- name: Add Duo YUM Repo
+  blockinfile:
+    dest: /etc/yum.repos.d/duosecurity.repo
+    insertafter: 'EOF'
+    content: |
+      [duosecurity]
+      name=Duo Security Repository
+      baseurl=http://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch
+      enabled=1
+      gpgcheck=1
+
+- name: Add Duo RPM key
+  rpm_key: state=present key=https://duo.com/RPM-GPG-KEY-DUO validate_certs=no
+
+- name: Install Duo package
+  yum: name=duo_unix state=installed update_cache=yes
+
+- name: Configure PAM sshd for Duo
+  lineinfile: dest=/etc/pam.d/sshd state=absent regexp="^auth\s+substack\s+password-auth"
+
+- name: Configure PAM sshd for Duo
+  blockinfile:
+    dest: /etc/pam.d/sshd
+    insertafter: '^auth\s+required\s+pam_sepermit.so'
+    content: |
+      auth  required pam_env.so
+      auth  sufficient pam_duo.so
+      auth  required pam_deny.so

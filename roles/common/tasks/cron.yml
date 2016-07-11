@@ -1,0 +1,7 @@
+---
+
+- name: Setup Cron environment
+  cron: name={{ item.varname }} user=root env=yes value={{ item.varvalue }}
+  with_items:
+    - { varname: 'MAILTO', varvalue: 'infra@komand.com' }
+    - { varname: 'TERM',   varvalue: 'xterm' }

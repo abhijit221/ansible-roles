@@ -1,0 +1,10 @@
+- include: duo-apt.yml
+  tags: duo
+  when: ansible_pkg_mgr == "apt"
+
+- include: duo-yum.yml
+  tags: duo
+  when: ansible_pkg_mgr == "yum"
+
+- include: common.yml
+  tags: duo

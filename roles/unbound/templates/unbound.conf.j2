@@ -1,0 +1,10 @@
+server:
+        interface: {{ ansible_eth0['ipv4']['address'] }}
+        port: 53
+        do-ip6: no
+        do-not-query-localhost: yes
+        access-control: {{ ansible_default_ipv4['network'] }}/24 allow_snoop
+
+forward-zone:
+       name: "." # Forward all
+       forward-addr: {{ dns['forwarders']['primary']   }}
