@@ -1,0 +1,33 @@
+# Examples
+
+group:
+  admin: god
+
+servers:
+  host1:
+    dns: host1.domain.com
+  host2:
+    dns: host2.domain.com
+
+dns:
+  forwarders:
+    primary: 10.0.0.2
+    secondary: 8.8.8.8
+  nameservers:
+    internal: 127.0.0.1
+    external: 8.8.8.8
+  domains:
+    internal: local
+    external: company.com
+
+users:
+  user1:
+    uid: 2000
+    shell: /bin/bash
+    password: $6$salt$hash
+    sshkey: ssh-rsa key-blah comment
+  user2:
+    uid: 2001
+    shell: /bin/bash
+    password: $6$salt$hash
+    sshkey: ssh-rsa key-blah comment
