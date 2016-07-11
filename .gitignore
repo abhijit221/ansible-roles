@@ -1,0 +1,6 @@
+*.retry
+*.sw*
+*.pem
+*.csv
+# Encrypted files
+roles/*/vars/*
