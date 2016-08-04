@@ -1,0 +1,13 @@
+---
+
+- name: Add Sysdig Apt Key
+  apt_key: url=https://s3.amazonaws.com/download.draios.com/DRAIOS-GPG-KEY.public state=present validate_certs=False
+
+- name: Add Sysdig Repo
+  get_url: url=http://download.draios.com/stable/rpm/draios.repo dest=/etc/yum.repos.d/draios.repo mode=0444
+
+- name: Install Kernel Headers
+  apt: name=linux-headers-{{ ansible_kernel }} state=installed update_cache=yes
+
+- name: Install sysdig package
+  apt: name=sysdig state=installed update_cache=yes

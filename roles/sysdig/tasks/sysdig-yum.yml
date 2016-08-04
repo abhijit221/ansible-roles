@@ -1,0 +1,25 @@
+---
+
+- name: Import Sysdig RPM Key
+  rpm_key: state=present key=https://s3.amazonaws.com/download.draios.com/DRAIOS-GPG-KEY.public
+  #validate_certs=no
+  #
+- name: Create Sysdig Repo
+  get_url: url=http://download.draios.com/stable/rpm/draios.repo dest=/etc/yum.repos.d/draios.repo mode=0444
+
+#- name: Add Duo YUM Repo
+#  blockinfile:
+#    dest: /etc/yum.repos.d/duosecurity.repo
+#    insertafter: 'EOF'
+#    content: |
+#      [duosecurity]
+#      name=Duo Security Repository
+#      baseurl=http://pkg.duosecurity.com/{{ ansible_distribution }}/$releasever/$basearch
+#      enabled=1
+#      gpgcheck=1
+
+- name: Install Kernel Headers
+  yum: name=kernel-devel-{{ ansible_kernel }} state=installed update_cache=yes
+
+- name: Install Sysdig
+  yum: name=sysdig state=installed update_cache=yes

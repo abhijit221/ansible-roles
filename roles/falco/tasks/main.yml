@@ -1,0 +1,21 @@
+- name: Install Falco package
+  apt: name=falco state=installed update_cache=yes
+  when: ansible_pkg_mgr == "apt"
+
+- name: Install Falco
+  yum: name=falco state=installed update_cache=yes
+  when: ansible_pkg_mgr == "yum"
+
+- name: Copy Falco Configuration
+  copy: src=falco.yml dest=/etc/falco_rules.yml owner=root group=root mode=440
+  notify: restart falco
+
+- name: Copy Falco Rules
+  copy: src=falco_rules.yaml dest=/etc/falco_rules.yaml owner=root group=root mode=440
+  notify: restart falco
+
+- name: Start Falco
+  service: state=started name=falco
+- name: Enable Falco
+  service: enabled=yes name=falco
+

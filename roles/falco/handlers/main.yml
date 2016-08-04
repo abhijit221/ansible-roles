@@ -1,0 +1,4 @@
+---
+
+- name: restart falco
+  service: name=falco state=restarted

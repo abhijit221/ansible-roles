@@ -1,0 +1,7 @@
+- include: sysdig-apt.yml
+  tags: sysdig
+  when: ansible_pkg_mgr == "apt"
+
+- include: sysdig-yum.yml
+  tags: sysdig
+  when: ansible_pkg_mgr == "yum"
