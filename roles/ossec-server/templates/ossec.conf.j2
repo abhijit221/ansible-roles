@@ -130,7 +130,7 @@
   {% endfor %}
 {% endif %}
 
-{% if ossec_server_config.syslog is defined %}
+{% if ossec_server_config.syslog is defined and ossec_server_config.syslog %}
   {% for log in ossec_server_config.syslog %}
 <syslog_output>
     <server>{{ log.server }}</server>
