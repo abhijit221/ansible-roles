@@ -1,0 +1,8 @@
+---
+
+ossec_server_ip: ""
+ossec_server_hostname: localhost.localdomain
+ossec_profile: # Add custom profile names to list
+  - ''
+  - ''
+  # Note: A base distro profile is auto applied using {{ ansible_os_family }} in agent template

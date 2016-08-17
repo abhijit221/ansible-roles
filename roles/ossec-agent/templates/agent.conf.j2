@@ -1,0 +1,28 @@
+<!-- OSSEC example config -->
+
+<ossec_config>
+  <client>
+{% if (ossec_server_ip is defined) and ossec_server_ip %}
+    <server-ip>{{ ossec_server_ip }}</server-ip>
+{% endif %}
+{% if (ossec_server_hostname is defined) and ossec_server_hostname %}
+    <server-hostname>{{ ossec_server_hostname }}</server-hostname>
+{% endif %}
+    <config-profile>{{ ansible_os_family | lower }}</config-profile>
+{% if (ossec_profile is defined) and ossec_profile[0] != '' %}
+{% for profile in ossec_profile %}
+    <config-profile>{{ profile }}</config-profile>
+{% endfor %}
+{% endif %}
+{% if apache_log_dir.stat is defined %}
+{% if apache_log_dir.stat.exists == true %}
+    <config-profile>apache-{{ ansible_os_family | lower }}</config-profile>
+{% endif %}
+{% endif %}
+{% if nginx_log_dir.stat is defined %}
+{% if nginx_log_dir.stat.exists == true %}
+    <config-profile>nginx</config-profile>
+{% endif %}
+{% endif %}
+  </client>
+</ossec_config>

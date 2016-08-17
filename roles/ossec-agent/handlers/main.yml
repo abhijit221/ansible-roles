@@ -1,0 +1,7 @@
+---
+# handlers file for ossec-agent
+
+- name: restart ossec-agent
+  service: name={{ ossec }}
+           state=restarted
+           enabled=yes

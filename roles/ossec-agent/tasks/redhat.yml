@@ -1,0 +1,33 @@
+---
+# Tasks specific for RedHat systems
+
+- name: RedHat | Set some facts
+  set_fact: 
+      ansible_distribution: centos
+  when: ansible_distribution == "RedHat"
+
+- name: RedHat | Install atomicorp repo
+  yum: >
+      name=https://www.atomicorp.com/channels/atomic/centos/{{ansible_distribution_major_version}}/x86_64/RPMS/atomic-release-1.0-19.el{{ansible_distribution_major_version}}.art.noarch.rpm
+      state=present
+
+- name: RedHat | Install epel repo
+  yum: >
+      name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm
+      state=present
+
+- name: RedHat | Install ossec-hids-client
+  yum: pkg=ossec-hids-client
+       state=present
+  tags:
+    - init
+
+- name: RedHat | Checking for Apache Log Directory
+  stat: path=/var/log/httpd
+  register: apache_log_dir
+  ignore_errors: True
+
+- name: RedHat | Checking for NGinx Log Directory
+  stat: path=/var/log/nginx
+  register: nginx_log_dir
+  ignore_errors: True
