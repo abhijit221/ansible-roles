@@ -1,0 +1,4 @@
+/usr/sbin/shred:removal
+/usr/bin/shred:removal
+/usr/local/sbin/shred:removal
+/usr/local/bin/shred:removal

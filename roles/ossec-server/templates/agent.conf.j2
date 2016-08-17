@@ -1,0 +1,135 @@
+{% for config in ossec_agent_configs %}
+<agent_config {{ config.type }}="{{ config.type_value }}">
+{% if config.syscheck is defined %}
+  <syscheck>
+    <!-- Frequency that syscheck is executed -- default every 20 hours -->
+{% if config.syscheck.frequency is defined %}
+    <frequency>{{ config.syscheck.frequency }}</frequency>
+{% endif %}
+{% if config.syscheck.scan_on_start is defined %}
+    <scan_on_start>{{ config.syscheck.scan_on_start }}</scan_on_start>
+{% endif %}
+{% if config.syscheck.alert_new_files is defined %}
+    <alert_new_files>{{ config.syscheck.alert_new_files }}</alert_new_files>
+{% endif %}
+{% if config.syscheck.auto_ignore is defined %}
+    <auto_ignore>{{ config.syscheck.auto_ignore }}</auto_ignore>
+{% endif %}
+{% if config.syscheck.directories is defined %}
+    <!-- Directories to check  (perform all possible verifications) -->
+{% for dir in config.syscheck.directories %}
+    <directories realtime="{{ dir.realtime }}" report_changes="{{ dir.diff }}" check_sha1sum="{{ dir.sha1sum }}" check_md5sum="{{ dir.md5sum }}" check_size="{{ dir.size }}" check_owner="{{ dir.owner }}" check_group="{{ dir.group }}" check_perm="{{ dir.perm }}">{{ dir.dirs }}</directories>
+{% endfor %}
+{% endif %}
+
+{% if config.syscheck.ignore_files is defined %}
+    <!-- Files/directories to ignore -->
+{% for ignore_file in config.syscheck.ignore_files %}
+    <ignore>{{ ignore_file }}</ignore>
+{% endfor %}    
+{% endif %}
+  </syscheck>
+{% endif %}
+
+  <!-- Files to monitor (localfiles) -->
+{% if config.files is defined %}
+{% for file in config.files %}
+  <localfile>
+{% if file.format is defined %}
+    <log_format>{{ file.format }}</log_format>
+{% endif %}
+{% if file.command is defined %}
+    <command>{{ file.command }}</command>
+{% else %}
+    <location>{{ file.location }}</location>
+{% endif %}
+  </localfile>
+{% endfor %}
+{% endif %}
+
+{% if config.commands is defined %}
+  <!-- Commands to monitor (localfiles) -->
+{% for cmd in config.commands %}
+  <localfile>
+    <log_format>full_command</log_format>
+    <command>{{ cmd.command }}</command>
+{% if cmd.alias is defined %}
+    <alias>{{ cmd.alias }}</alias>
+{% endif %}
+{% if cmd.frequency is defined %}
+    <frequency>{{ cmd.frequency }}</frequency>
+{% endif %}
+{% if cmd.frequency is defined %}
+    <frequency>{{ cmd.frequency }}</frequency>
+{% endif %}
+{% if cmd.diff is defined and cmd.diff == 'yes' %}
+    <check_diff />
+{% endif %}
+  </localfile>
+{% endfor %}
+{% endif %}
+
+{% if config.rootcheck is defined %}
+  <!-- Rootcheck -->
+  <rootcheck>
+{% if config.rootcheck.disabled is defined %}
+    <disabled>{{ config.rootcheck.disabled }}</disabled>
+{% endif %}
+    <rootkit_files>{{ config.rootcheck.rootkit_files }}</rootkit_files>
+    <rootkit_trojans>{{ config.rootcheck.rootkit_trojans }}</rootkit_trojans>
+{% for audit in config.rootcheck.system_audit %}
+    <system_audit>{{ audit }}</system_audit>
+{% endfor %}    
+{% if config.rootcheck.base_directory is defined %}
+    <base_directory>{{ config.rootcheck.base_directory }}</base_directory>
+{% endif %}
+{% if config.rootcheck.scanall is defined %}
+    <scanall>{{ config.rootcheck.scanall }}</scanall>
+{% endif %}
+{% if config.rootcheck.frequency is defined %}
+    <frequency>{{ config.rootcheck.frequency }}</frequency>
+{% endif %}
+{% if config.rootcheck.check_dev is defined %}
+    <check_dev>{{ config.rootcheck.check_dev }}</check_dev>
+{% endif %}
+{% if config.rootcheck.check_files is defined %}
+    <check_files>{{ config.rootcheck.check_files }}</check_files>
+{% endif %}
+{% if config.rootcheck.check_if is defined %}
+    <check_if>{{ config.rootcheck.check_if }}</check_if>
+{% endif %}
+{% if config.rootcheck.check_pids is defined %}
+    <check_pids>{{ config.rootcheck.check_pids }}</check_pids>
+{% endif %}
+{% if config.rootcheck.check_policy is defined %}
+    <check_policy>{{ config.rootcheck.check_policy }}</check_policy>
+{% endif %}
+{% if config.rootcheck.ports is defined %}
+    <check_ports>{{ config.rootcheck.check_ports }}</check_ports>
+{% endif %}
+{% if config.rootcheck.check_sys is defined %}
+    <check_sys>{{ config.rootcheck.check_sys }}</check_sys>
+{% endif %}
+{% if config.rootcheck.check_trojans is defined %}
+    <check_trojans>{{ config.rootcheck.check_trojans }}</check_trojans>
+{% endif %}
+{% if config.rootcheck.check_unixaudit is defined %}
+    <check_unixaudit>{{ config.rootcheck.check_unixaudit }}</check_unixaudit>
+{% endif %}
+{% if config.rootcheck.check_winapps is defined %}
+    <check_winapps>{{ config.rootcheck.check_winapps }}</check_winapps>
+{% endif %}
+{% if config.rootcheck.check_winaudit is defined %}
+    <check_winaudit>{{ config.rootcheck.check_winaudit }}</check_winaudit>
+{% endif %}
+{% if config.rootcheck.check_winmalware is defined %}
+    <check_winmalware>{{ config.rootcheck.check_winmalware }}</check_winmalware>
+{% endif %}
+{% if config.rootcheck.skip_nfs is defined %}
+    <skip_nfs>{{ config.rootcheck.skip_nfs }}</skip_nfs>
+{% endif %}
+  </rootcheck>
+{% endif %}
+
+</agent_config>
+{% endfor %}

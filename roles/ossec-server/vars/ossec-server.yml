@@ -1,0 +1,193 @@
+ossec_server_config:
+  logall: 'yes'
+  memory: 1024
+  mail:
+    enable: "{{ mail_enable }}"
+    server: "{{ mail_server }}"
+    to: "{{ mail_to }}"
+    from: "{{ mail_from }}"
+    maxperhour: 12
+    idsname: "OSSEC"
+  alert:
+    log_level: 1
+    email_level: 11
+    host_information: 8
+    stats: 8
+    #geoip: 'no' 
+    #geoip_db_path: '/etc/GeoLiteCityv4.dat'
+    #geoip6_db_path: '/etc/GeoLiteCityv6.dat'
+    #json: 'yes' - Only available in 2.9
+ # email_alerts: # Granular email configuration
+ #   - to: user@company.com
+ #     format: full
+ #     level: 10
+ #     group: attacks
+ #   - to: user2@company.com
+ #     format: sms
+ #     level: 5
+ #     rule_id: 5409
+  reports:
+    - title: 'Daily Report: Successful logins'
+      groups: 'authentication_success'
+      user: ""
+      relation: 'srcip'
+      to: "{{ mail_to }}"
+      showlogs: 'no'
+    - title: 'Daily Report: File Changes'
+      groups: 'syscheck'
+      to: "{{ mail_to }}"
+      showlogs: 'yes'
+    - title: 'Daily Report: Custom Active Response'
+      groups: 'ncsa_ar'
+      to: "{{ mail_to }}"
+      showlogs: 'yes'
+      # Other available options:
+      #level:
+      #rule_id:
+      #srcip:
+      #location: # Any file path or hostname or network.
+  #syslog: # Enable syslog output
+  #  - server: "{{ syslog_server }}" # IP address
+  #    port: 9521
+  #    level: 3
+  #    format: 'default'
+  #  - server: syslog2.company.com
+  #    port: 514
+  #    format: 'default'
+  #    level: 5
+  #    rule_id: 5409
+  #    group: syscheck
+  #    use_fqdn: 'yes' - Not available in 2.8.1
+  #    location: '/var/log/secure'- Not available in 2.8.1
+  remotes:
+    - connection: 'secure'
+      port: 1514
+      protocol: 'tcp'
+      allowed_ips:
+      - '10.0.0.0/8'
+  white_lists:
+    - '127.0.0.1'
+    - '^locahost.localdomain$'
+    - '10.0.0.0/8'
+  analysis:
+    custom_decoders_dir:
+      - decoders # Path relative from /var/ossec
+    custom_rules:
+      - ncsa_rules.xml # Path relative from /var/ossec/rules
+      - ncsa_ar_rules.xml
+      - ncsa_syscheck_rules.xml
+      - overwrite_rules.xml
+  syscheck: 
+    frequency: 21600
+    scan_on_start: 'yes'
+    alert_new_files: 'yes'
+    auto_ignore: 'no'
+    ignore_files:
+      - /etc/mtab
+      - /etc/mnttab
+      - /etc/hosts.deny
+      - /etc/mail/statistics
+      - /etc/random-seed
+      - /etc/adjtime
+      - /etc/httpd/logs
+      - /etc/utmpx
+      - /etc/wtmpx
+      - /etc/cups/certs
+      - /etc/dumpdates
+      - /etc/svc/volatile
+    directories:
+      - dirs: /etc,/bin,/sbin,/usr/bin,/usr/sbin
+        realtime: 'yes'
+        diff: 'no'
+        sha1sum: 'yes'
+        md5sum: 'no'
+        size: 'yes'
+        owner: 'yes'
+        group: 'yes'
+        perm: 'yes'
+  rootcheck: 
+    disabled: 'no'
+    base_directory: '/var/ossec'
+    rootkit_files: '/var/ossec/etc/shared/rootkit_files.txt'
+    rootkit_trojans: '/var/ossec/etc/shared/rootkit_trojans.txt'
+    system_audit:
+      - /var/ossec/etc/shared/system_audit_rcl.txt
+      - /var/ossec/etc/shared/{{ cis_distribution_filename }}
+    scanall: 'no'
+    frequency: 36000
+    check_dev: 'yes'
+    check_files: 'yes'
+    check_if: 'yes'
+    check_pids: 'yes'
+    check_ports: 'yes'
+    check_sys: 'yes'
+    check_trojans: 'yes'
+    check_unixaudit: 'yes'
+    check_winapps: 'yes'
+    check_winaudit: 1
+    check_winmalware: 'yes'
+    #check_policy: 'yes' - Not available in 2.8.1
+    #skip_nfs: 'no' - Not available in 2.8.1
+  active_responses:
+    - name: 'rule_all'
+      executable: 'rule_all.sh'
+      level: 3
+      expect: ""
+      location: 'server'
+    - name: 'syscheck_all'
+      executable: 'syscheck_all.sh'
+      rules_group: 'syscheck'
+      level: 5
+      expect: 'filename'
+      location: 'server'
+    - name: 'host-deny'
+      executable: 'host-deny.sh'
+      level: 6
+      timeout: 600
+      expect: 'srcip'
+      timeout_allowed: 'yes'
+      location: 'local'
+    - name: 'rpm_lookup'
+      executable: 'rpm_lookup.sh'
+      level: 5
+      rules_group: 'syscheck'
+      expect: 'filename'
+      location: 'local'
+    - name: 'deb_lookup'
+      executable: 'deb_lookup.sh'
+      level: 5
+      rules_group: 'syscheck'
+      expect: 'filename'
+      location: 'local'
+  lists:
+    - 'lists/networks.list'
+    - 'lists/users.list'
+    - 'lists/secops_users.list'
+    - 'lists/system_users.list'
+    - 'lists/sudo.list'
+    - 'lists/commands.list'
+    - 'lists/watched_users.list'
+    - 'lists/watched_ips.list'
+  files: # logs['system'] defined in tasks/{{ ansible_distribution | lower }}.yml
+    - location: "{{ logs['system']['main'] }}"
+      format: 'syslog'
+    - location: "{{ logs['system']['auth'] }}"
+      format: 'syslog'
+    - location: "{{ logs['system']['mail'] }}"
+      format: 'syslog'
+    - location: "{{ logs['system']['pkgmgr'] }}"
+      format: 'syslog'
+    - location: "{{ logs['system']['dmesg'] }}"
+      format: 'syslog'
+    - location: "{{ logs['ossec']['pkg'] }}"
+      format: 'syslog'
+    - location: '/var/ossec/logs/cymru_lookup.log'
+      format: 'syslog'
+    - location: '/var/ossec/logs/command_search.log'
+      format: 'syslog'
+      # If /var/log/{nginx,httpd,apache2} is found, template will add {access,error}.log to files list
+  commands:
+    - command: 'netstat -tan |grep LISTEN |grep -v 127.0.0.1 | sort'
+      diff: yes
+    - command: 'last -n 5'
+      diff: yes

@@ -1,0 +1,42 @@
+---
+
+- name: Checking if keys exists remotely
+  stat: path=/var/ossec/etc/client.keys
+  register: remotekeys
+  ignore_errors: True
+
+- name: Checking if keys exists locally
+  local_action: stat path={{ role_path }}/files/client.keys
+  register: localkeys
+  ignore_errors: True
+  sudo: no
+
+- name: Client keys info
+  debug: msg="client.keys found locally - {{ role_path }}/files/client.keys, Remotely - {{ remotekeys['stat']['exists'] }}/size-{{remotekeys.stat.size}}"
+  when: localkeys.stat.exists == True
+
+- name: Install Client Keys file
+  copy: src=client.keys dest=/var/ossec/etc/client.keys
+  when: localkeys.stat.exists == True and (remotekeys.stat.exists == False or remotekeys.stat.size == 0)
+
+- name: Checking rids exists remotely
+  stat: path=/var/ossec/queue/rids
+  register: remoterids
+  ignore_errors: True
+
+- name: Checking rids exists locally
+  local_action: stat path={{ role_path }}/files/rids
+  register: localrids
+  ignore_errors: True
+  sudo: no
+
+- name: Rids info
+  debug: msg="Rids dir found locally - {{ role_path }}/files/rids, Remotely found - {{ remoterids['stat']['exists'] }}"
+  when: localrids.stat.exists == True
+
+- find: paths=/var/ossec/queue/rids file_type=directory
+  register: ridsdir
+
+- name: Install Rids Contents
+  copy: src=rids/ dest=/var/ossec/queue/rids owner=ossecr group=ossec
+  when: localrids.stat.exists == True and ridsdir.examined == 0

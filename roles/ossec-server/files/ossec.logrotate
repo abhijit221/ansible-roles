@@ -1,0 +1,20 @@
+/var/ossec/logs/active-responses.log {
+    su ossec ossec
+    daily
+    missingok
+    notifempty
+}
+
+/var/ossec/logs/ossec.log {
+    su ossec ossec
+    create 0664 ossec ossec
+    missingok
+    notifempty
+}
+
+/var/ossec/logs/*_lookup.log {
+  daily
+  rotate 3
+  missingok
+  notifempty
+}

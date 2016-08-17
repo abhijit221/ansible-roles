@@ -1,0 +1,83 @@
+---
+
+- include: "redhat.yml"
+  when: ansible_os_family == "RedHat"
+
+- include: "debian.yml"
+  when: ansible_os_family == "Debian"
+
+- name: Create OSSEC directories
+  file: path={{item}} state=directory
+  with_items:
+    -  /var/ossec/lists
+    -  /var/ossec/decoders
+
+- name: Load CIS Internel Benchmarks Task File
+  include: "cis.yml"
+
+- name: Include OSSEC Agent Variables
+  include_vars: ossec-agent.yml
+
+- name: Configure the shared-agent.conf
+  template: src=agent.conf.j2 dest=/var/ossec/etc/shared/agent.conf owner=ossec group=ossec mode=0644 validate='/var/ossec/bin/verify-agent-conf -f %s'
+  notify: restart ossec-server
+
+- name: Include OSSEC Server Variables
+  include_vars: ossec-server.yml
+
+- name: Configure the ossec-server internal options
+  template: src=internal_options.conf.j2 dest=/var/ossec/etc/internal_options.conf owner=root group=root mode=0644
+  notify: restart ossec-server
+
+- name: Configure the ossec-server
+  template: src=ossec.conf.j2 dest=/var/ossec/etc/{{ ossec_config }} owner=root group=root mode=0644 validate='/var/ossec/bin/ossec-syscheckd -t %s'
+  notify: restart ossec-server
+
+- name: Load ossec-csyslog Task File
+  include: "csyslog.yml"
+
+- name: Create Self-Signed Certificate
+  command: openssl req -new -nodes -x509 -subj "/C=US/ST=Massachusetts/L=Boston/O=Komand/CN=${ansible_fqdn}" -days 3650 -keyout /var/ossec/etc/sslmanager.key -out /var/ossec/etc/sslmanager.cert -extensions v3_ca 
+  args:
+    creates: /var/ossec/etc/sslmanager.cert
+
+- name: Add ossec-authd upstart file
+  copy: src=ossec-authd.upstart dest=/etc/init/ossec-authd.conf
+  notify: restart ossec-authd
+  when: ansible_os_family == "Debian" and ansible_distribution_major_version <= "14"
+
+- name: Add ossec-authd systemd file
+  copy: src=ossec-authd.service dest=/lib/systemd/system/ossec-authd.service
+  notify: restart ossec-authd
+
+- name: Configure Custom Rules and Decoders
+  copy: src={{item}}/ dest=/var/ossec/{{item}} owner=root group=ossec mode=0440 
+  with_items:
+  - rules
+  - decoders
+  notify: restart ossec-server
+
+- name: Configure Active Response
+  copy: src=active-response/ dest=/var/ossec/active-response/bin owner=root group=ossec mode=0550 validate='/var/ossec/bin/ossec-analysisd -t %s'
+  notify: restart ossec-server
+
+- name: Configure CDB Lists
+  copy: src=lists/ dest=/var/ossec/lists owner=root group=ossec mode=0644
+  notify: 
+  - make cdb
+  - restart ossec-server
+
+- name: Configure Logrotate for OSSEC
+  copy: src=ossec.logrotate dest=/etc/logrotate.d/ossec-hids owner=root group=root mode=0644
+
+- name: Load Key Restore Task File
+  include: "restore.yml"
+
+- name: Enable ossec-authd
+  service: name=ossec-authd enabled=yes state=started
+- name: Start ossec-authd
+  service: name=ossec-authd state=started
+- name: Enable ossec-server
+  service: name={{ ossec }} enabled=yes
+- name: Start ossec-server
+  service: name={{ ossec }} state=started

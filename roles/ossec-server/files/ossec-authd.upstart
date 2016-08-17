@@ -1,0 +1,9 @@
+description "ossec-authd"
+author "Jon Schipp"
+start on filesystem or runlevel [2345]
+stop on runlevel [!2345]
+
+respawn limit 10 5
+
+# Run sagan
+exec /var/ossec/bin/ossec-authd -i

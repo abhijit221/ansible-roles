@@ -1,0 +1,44 @@
+---
+
+- name: Debian/Ubuntu | Set some facts
+  set_fact:
+    ossec_config: ossec.conf
+    ossec: ossec
+    logs:
+      system:
+        main: '/var/log/syslog'
+        auth: '/var/log/auth.log'
+        pkgmgr: '/var/log/dpkg.log'
+        mail: '/var/log/mail.log'
+        dmesg: '/var/log/dmesg'
+      ossec:
+        pkg: '/var/ossec/logs/deb_lookup.log'
+
+- name: Debian/Ubuntu | Installing repository key
+  apt_key: url=http://ossec.alienvault.com/repos/apt/conf/ossec-key.gpg.key
+
+- name: Debian/Ubuntu | Installing repository
+  apt_repository: repo="deb http://ossec.alienvault.com/repos/apt/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main" state=present
+
+- name: Debian/Ubuntu | Install ossec-hids
+  apt: pkg=ossec-hids state=present update_cache=yes cache_valid_time=3600
+
+- name: Checking for Apache Log Directory
+  stat: path=/var/log/apache2
+  register: apache_log_dir
+  ignore_errors: True
+
+- name: Checking for NGinx Log Directory
+  stat: path=/var/log/nginx
+  register: nginx_log_dir
+  ignore_errors: True
+
+- name: Checking for Apache Log Directory
+  stat: path=/var/log/apache2
+  register: apache_log_dir
+  ignore_errors: True
+
+- name: Checking for NGinx Log Directory
+  stat: path=/var/log/nginx
+  register: nginx_log_dir
+  ignore_errors: True

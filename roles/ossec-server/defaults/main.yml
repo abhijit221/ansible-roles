@@ -1,0 +1,9 @@
+---
+
+ossec_server_config: []
+ossec_agent_configs: []
+mail_enable: 'no'
+mail_server:
+syslog_server:
+mail_to:
+mail_from:

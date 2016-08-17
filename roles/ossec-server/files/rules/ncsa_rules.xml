@@ -1,0 +1,272 @@
+<!-- Organization custom rules --> 
+
+<var name="SECOPS_NETS">10.0.0.</var>
+<var name="NAGIOS_USERS">nagios|nrpe</var>
+<var name="PROGRAM_USERS">$NAGIOS_USERS|git|qualys|cabackup|zimbra|postgres|gitwriter|ansible-tmp</var>
+
+<!-- Note that <hostname> matches agent name, not hostname field in log line -->
+
+<group name="komand">
+
+  <rule id="10001" level="0">
+    <if_sid>1002</if_sid>
+    <match>] [error] [|NonFataGlobal|LOG_ERROR::|bad MAD status|[mibd.NOTICE]|systemd|vmafd/|allocation failure|stunnel| propogate|</match>
+    <description>Ignore things that are not unknown problems</description>
+  </rule>
+
+  <rule id="10002" level="0">
+    <if_sid>5402,5403,5501,5502,5715</if_sid>
+    <match>$NAGIOS_USERS</match>
+    <description>Ignore nagios/nrpe log</description>
+  </rule>
+
+  <rule id="10003" level="0">
+    <program_name>ossec</program_name>
+    <hostname>ossec-sec</hostname>
+    <description>Ignore matching on ossec logs that are fed back in</description>
+  </rule>
+
+  <rule id="10004" level="0">
+    <if_sid>4714</if_sid>
+    <match>%ASA-|[ Scanning]|Duplicate TCP SYN</match>
+    <description>Ignore flood of duplicate TCP alerts from vpn</description>
+  </rule>
+
+  <rule id="10005" level="0">
+    <if_sid>5501,5502</if_sid>
+    <match>session closed|session open|Exiting: authentication</match>
+    <description>Ignore sshd and myproxy login session alerts</description>
+  </rule>
+
+  <rule id="10007" level="3">
+    <if_sid>5706,5716</if_sid>
+    <list field="srcip" lookup="not_address_match_key" >lists/networks.list</list>
+    <description>Ignore SSH insecure attempts from organization nets</description>
+    <options>no_log</options>
+  </rule>
+
+  <rule id="10008" level="5">
+    <if_sid>2503</if_sid>
+    <description>Ignore TCP Wrappers blocks</description>
+    <options>no_log</options>
+  </rule>
+
+  <rule id="10009" level="0">
+    <if_sid>5402</if_sid>
+    <match>$PROGRAM_USERS|ipmi-sensors|echo BECOME-SUCCESS-</match>
+    <description>Ignore sudo for program users</description>
+  </rule>
+
+  <rule id="100010" level="0">
+    <if_sid>5715</if_sid>
+    <match>Accepted publickey|Accepted hostbased</match>
+    <description>Ignore publickey logins</description>
+  </rule>
+
+  <rule id="100011" level="5">
+    <if_sid>5706</if_sid>
+    <match>Did not receive identification string</match>
+    <description>Ignore identification messages</description>
+    <options>no_log</options>
+  </rule>
+
+  <rule id="100012" level="0">
+    <if_sid>2833</if_sid>
+    <program_name>crond</program_name>
+    <description>Ignore cron</description>
+  </rule>
+
+  <rule id="100013" level="0">
+    <if_sid>5304</if_sid>
+    <user>rabbitmq</user>
+    <match>:rabbitmq</match>
+    <description>Ignore rabbitmq</description>
+  </rule>
+
+  <rule id="100014" level="0">
+    <if_sid>5715</if_sid>
+    <match>gitwriter</match>
+    <description>Ignore ssh for user gitwriter</description>
+  </rule>
+
+  <rule id="100019" level="0">
+    <if_sid>2501</if_sid>
+    <program_name>myproxy-server.tfca</program_name>
+    <match>Buffer: #BACKOFF_TIME|5/Above Enable</match>
+    <description>Ignore myproxy-tfca alerts</description>
+  </rule>
+
+  <rule id="100020" level="8" timeframe="120" frequency="2">
+    <if_matched_sid>5715</if_matched_sid>
+    <same_source_ip />
+    <same_location />
+    <description>Multiple SSH logins from same source IP</description>
+    <group>authentication_success,</group>
+  </rule>
+
+  <rule id="100021" level="0">
+    <if_sid>100020</if_sid>
+    <match>$SECOPS_NETS</match>
+    <description>Ignore multiple SSH logins from same source SECOPS networks</description>
+    <group>authentication_success,</group>
+  </rule>
+
+  <rule id="100022" level="10" timeframe="300" frequency="8">
+    <if_matched_sid>5710</if_matched_sid>
+    <same_source_ip />
+    <description>Multiple attempt to login using a non-existent user</description>
+  </rule>
+
+  <rule id="100023" level="10">
+    <match>WARN: Syscheck disabled.|WARN: Rootcheck disabled.</match>
+    <description>OSSEC service disabled</description>
+  </rule>
+
+  <rule id="100026" level="12">
+    <if_group>authentication_success</if_group>
+    <list field="srcip" lookup="address_match_key" >lists/ip.list</list>
+    <description>Successful authentication from bad IP</description>
+  </rule>
+
+  <rule id="100027" level="13">
+    <if_group>authentication_success</if_group>
+    <list field="srcip" lookup="match_key" >lists/bhr.list</list>
+    <description>Successful authentication from previously BHR'd IP</description>
+  </rule>
+
+   <rule id="100028" level="12">
+    <if_group>web_scan|recon|sqlinjection|attack</if_group>
+    <list field="url" lookup="match_key" >lists/url.list</list>
+    <description>URL Intel list match</description>
+  </rule>
+
+  <rule id="100029" level="0">
+    <if_sid>1003</if_sid>
+    <match>': {u'</match>
+    <description>Ignore JSON</description>
+  </rule>
+
+  <rule id="100031" level="12" timeframe="120">
+    <if_sid>5712</if_sid>
+    <if_matched_sid>5715</if_matched_sid>
+    <same_location />
+    <same_source_ip />
+    <same_user />
+    <list field="srcip" lookup="not_address_match_key" >lists/networks.list</list>
+    <description>Success after multiple failed SSH authentications from outside</description>
+  </rule>
+
+  <rule id="100032" level="10" timeframe="120">
+    <if_group>authentication_success</if_group>
+    <if_matched_group>authentication_failed,authenticaton_failures</if_matched_group>
+    <same_source_ip />
+    <same_user />
+    <description>Success after failed authentication</description>
+  </rule>
+
+  <rule id="100033" level="0" timeframe="120">
+    <if_matched_group>system_shutdown</if_matched_group>
+    <if_sid>503,504</if_sid>
+    <same_location />
+    <description>Ignore agent started after system shutdown</description>
+  </rule>
+
+  <rule id="100034" level="8">
+    <url>/contact/|/administrator/|/admin/|/session.php</url>
+    <match>JDatabaseDriverMysqli</match>
+    <description>Possible Joomla! exploitation attempt</description>
+  </rule>
+
+  <rule id="100035" level="8">
+    <if_sid>5715</if_sid>
+    <user>root</user>
+    <list field="srcip" lookup="not_address_match_key" >lists/networks.list</list>
+    <description>Non-organization root login</description>
+  </rule>
+
+  <rule id="100036" level="11">
+    <if_sid>100035</if_sid>
+    <match>password</match>
+    <description>Non-organization root login with password</description>
+  </rule>
+
+  <rule id="100037" level="0">
+    <program_name>sagan</program_name>
+    <match>[</match>
+    <description>Ignore sagan alerts</description>
+  </rule>
+
+  <!-- id is the user executing sudo -->
+  <rule id="100039" level="12">
+    <if_sid>5400</if_sid>
+    <list field="id" lookup="match_key" >lists/system_users.list</list>
+    <description>System account executed sudo</description>
+  </rule>
+
+  <rule id="100040" level="12">
+    <if_sid>5400</if_sid>
+    <list field="status" lookup="match_key" >lists/commands.list</list>
+    <description>Suspicious command executed</description>
+  </rule>
+
+  <rule id="100041" level="0">
+    <if_sid>100039</if_sid>
+    <match>$NAGIOS_USERS</match>
+    <description>Ignore system account executed sudo for nagios</description>
+  </rule>
+
+  <rule id="100043" level="11">
+    <match>OOM for frozen_buffer</match>
+    <description>Kernel went into write mode</description>
+  </rule>
+
+  <rule id="100044" level="11">
+    <match>kernel: Program Xnest tried to access /dev/mem|kernel: Program Xnest tried</match>
+    <description>Possible Phalanx exploit</description>
+  </rule>
+
+  <rule id="100045" level="11">
+    <if_sid>5749</if_sid>
+    <match>Disconnecting: Bad packet length</match>
+    <description>Possible Phalanx exploit</description>
+  </rule>
+
+  <!-- user is any decoded user/dstuser field - it won't always be available -->
+  <rule id="100046" level="11" frequency="0">
+    <if_matched_group>authentication_failed|authenticaton_failures|authentication_success|add_user|account_changed|invalid_login</if_matched_group>
+    <list field="user" lookup="match_key">lists/watched_users.list</list>
+    <description>Watched user alert triggered</description>
+  </rule>
+
+  <!-- id is the user executing sudo -->
+  <rule id="100047" level="11">
+    <if_sid>5400</if_sid>
+    <if_matched_group>syslog,sudo</if_matched_group>
+    <list field="id" lookup="not_match_key">lists/sudo.list</list>
+    <description>Authentication attempted from unvetted sudo user</description>
+  </rule>
+
+  <rule id="100048" level="12" frequency="0">
+    <if_matched_group>authentication_failed|authenticaton_failures|authentication_success|connection_attempt|virus|attacks|invalid_login|syslog</if_matched_group>
+    <list field="srcip" lookup="address_match_key" >lists/watched_ips.list</list>
+    <description>Activity from watched IP list detected</description>
+  </rule>
+
+  <rule id="100049" level="6">
+    <match>UDEV</match>
+    <description>Udev action</description>
+  </rule>
+
+  <rule id="100050" level="13" frequency="2" timeframe="60">
+    <if_matched_sid>100047</if_matched_sid>
+    <same_location />
+    <description>Multiple unvetted sudo accesses</description>
+  </rule>
+
+  <rule id="100051" level="13" frequency="2" timeframe="60">
+    <if_matched_sid>5402</if_matched_sid>
+    <same_location />
+    <description>Multiple root sudo accesses</description>
+  </rule>
+
+</group> <!-- SYSLOG,LOCAL -->

@@ -1,0 +1,452 @@
+<!-- OSSEC example config -->
+
+<ossec_config>
+  <global>
+{% if ossec_server_config.mail is defined %}
+{% if ossec_server_config.mail.enable is defined and ossec_server_config.mail.enable %}
+    <email_notification>{{ ossec_server_config.mail.enable }}</email_notification>
+{% else %}
+    <email_notification>no</email_notification>
+{% endif %}
+{% if ossec_server_config.mail.server is defined and ossec_server_config.mail.server %}
+    <smtp_server>{{ ossec_server_config.mail.server }}</smtp_server>
+{% endif %}
+{% if ossec_server_config.mail.to is defined and ossec_server_config.mail.to %}
+    <email_to>{{ ossec_server_config.mail.to }}</email_to>
+{% endif %}
+{% if ossec_server_config.mail.from is defined and ossec_server_config.mail.from %}
+    <email_from>{{ ossec_server_config.mail.from }}</email_from>
+{% endif %}
+{% if ossec_server_config.mail.maxperhour is defined %}
+    <email_maxperhour>{{ ossec_server_config.mail.maxperhour}}</email_maxperhour>
+{% endif %}
+{% if ossec_server_config.mail.idsname is defined %}
+    <email_idsname>{{ ossec_server_config.mail.idsname}}</email_idsname>
+{% endif %}
+{% endif %}
+{% if ossec_server_config.logall is defined %}
+    <logall>{{ ossec_server_config.logall }}</logall>
+{% endif %}
+{% if ossec_server_config.alert.custom_alert is defined %}
+    <custom_alert_output>{{ ossec_server_config.alert.custom_alert }}</custom_alert_output>
+{% endif %}
+{% if ossec_server_config.alert.stats is defined %}
+    <stats>{{ ossec_server_config.alert.stats }}</stats>
+{% endif %}
+{% if ossec_server_config.alert.json is defined %}
+    <jsonout_output>{{ ossec_server_config.alert.json }}</jsonout_output>
+{% endif %}
+{% if ossec_server_config.alert.host_information is defined %}
+    <host_information>{{ ossec_server_config.alert.host_information }}</host_information>
+{% endif %}
+{% if ossec_server_config.memory is defined %}
+    <memory_size>{{ ossec_server_config.memory }}</memory_size>
+{% endif %}
+{% for list in ossec_server_config.white_lists %}
+    <white_list>{{ list }}</white_list>
+{% endfor %}
+{% if ossec_server_config.alert.geoip_db_path is defined %}
+    <geoip_db_path>{{ ossec_server_config.alert.geoip_db_path }}</geoip_db_path>
+{% endif %}
+{% if ossec_server_config.alert.geoip6_db_path is defined %}
+    <geoip6_db_path>{{ ossec_server_config.alert.geoip6_db_path }}</geoip6_db_path>
+{% endif %}
+  </global>
+
+{% if ossec_server_config.extra_emails is defined %}
+  {% for m in ossec_server_config.extra_emails %}
+    <email_alerts>
+      <email_to>{{ m.to }}</email_to>
+      {% if m.format is defined %}
+      <format>{{ m.format }}</format>
+      {% endif %}
+      {% if m.level is defined %}
+      <level>{{ m.level }}</level>
+      {% endif %}
+      {% if m.event_location is defined %}
+      <event_location>{{ m.event_location }}</event_location>
+      {% endif %}
+      {% if m.group is defined %}
+      <group>{{ m.group }}</group>
+      {% endif %}
+      {% if m.do_not_delay is defined and m.do_not_delay == true %}
+      <do_not_delay />
+      {% endif %}
+      {% if m.do_not_group is defined and m.do_not_group == true %}
+      <do_not_group />
+      {% endif %}
+      {% if m.rule_id is defined %}
+      <rule_id>{{ m.rule_id }}</rule_id>
+      {% endif %}
+    </email_alerts>
+  {% endfor %}    
+{% endif %}
+
+  <alerts>
+    <log_alert_level>{{ ossec_server_config.alert.log_level }}</log_alert_level>
+    <email_alert_level>{{ ossec_server_config.alert.email_level }}</email_alert_level>
+{% if ossec_server_config.alert.geoip is defined %}
+    <use_geoip>{{ ossec_server_config.alert.geoip }}</use_geoip>
+{% endif %}
+  </alerts>
+
+{% if ossec_server_config.reports is defined %}
+  {% for r in ossec_server_config.reports %}
+<reports>
+    <title>{{ r.title }}</title>
+{% if r.groups is defined %}
+    <group>{{ r.groups }}</group>
+{% endif %}
+{% if r.level is defined %}
+    <level>{{ r.level }}</level>
+{% endif %}
+{% if r.location is defined %}
+    <location>{{ r.location }}</location>
+{% endif %}
+{% if r.rule_id is defined %}
+    <rule_id>{{ r.rule_id }}</rule_id>
+{% endif %}
+{% if r.user is defined %}
+{% if r.relation is defined %}
+    <user type="relation">{{ r.relation }}</user>
+{% else %}
+    <user>{{ r.user }}</user>
+{% endif %}
+{% endif %}
+{% if r.srcip is defined %}
+{% if r.relation is defined %}
+    <srcip type="relation">{{ r.relation }}</srcip>
+{% else %}
+    <srcip>{{ r.srcip }}</srcip>
+{% endif %}
+{% endif %}
+{% if r.to is defined %}
+    <email_to>{{ r.to }}</email_to>
+{% endif %}
+{% if r.showlogs is defined %}
+    <showlogs>{{ r.showlogs }}</showlogs>
+{% endif %}
+  </reports>
+  {% endfor %}
+{% endif %}
+
+{% if ossec_server_config.syslog is defined %}
+  {% for log in ossec_server_config.syslog %}
+<syslog_output>
+    <server>{{ log.server }}</server>
+{% if log.port is defined %}
+    <port>{{ log.port }}</port>
+{% endif %}
+{% if log.format is defined %}
+    <format>{{ log.format }}</format>
+{% endif %}
+{% if log.rule_id is defined %}
+    <rule_id>{{ log.rule_id }}</rule_id>
+{% endif %}
+{% if log.group is defined %}
+    <group>{{ log.group }}</group>
+{% endif %}
+{% if log.use_fqdn is defined %}
+    <use_fqdn>{{ log.use_fqdn }}</use_fqdn>
+{% endif %}
+{% if log.location is defined %}
+    <location>{{ log.location }}</location>
+{% endif %}
+{% if log.level is defined %}
+    <level>{{ log.level }}</level>
+{% endif %}
+  </syslog_output>
+  {% endfor %}
+{% endif %}
+
+{% if ossec_server_config.remotes is defined %}
+  {% for r in ossec_server_config.remotes %}
+<remote>
+    <connection>{{ r.connection }}</connection>
+{% if r.protocol is defined %}
+    <protocol>{{ r.protocol }}</protocol>
+{% endif %}
+{% if r.port is defined %}
+    <port>{{ r.port }}</port>
+{% endif %}
+{% if r.allowed_ips is defined %}
+  {% for ip in r.allowed_ips %}
+  <allowed-ips>{{ ip }}</allowed-ips>
+  {% endfor %}
+{% endif %}
+{% if r.deny_ips is defined %}
+  {% for ip in ossec_server_config.remotes.deny_ips %}
+    <deny-ips>{{ ip }}</deny-ips>
+  {% endfor %}
+{% endif %}
+{% if r.local_ip is defined %}
+    <local_ip>{{ r.local_ip }}</local_ip>
+{% endif %}
+{% if r.ipv6 is defined %}
+    <ipv6>{{ r.ipv6 }}</ipv6>
+{% endif %}
+</remote>
+  {% endfor %}
+{% endif %}
+
+  <rules>
+{% if ossec_server_config.lists is defined %}
+    <!-- CDB Lists -->
+{% for list in ossec_server_config.lists %}
+    <list>{{ list }}</list>
+{% endfor %}    
+{% endif %}    
+
+{% if ossec_server_config.analysis.custom_decoders_dir is defined %}
+    <!-- Custom decoders to load -->
+{% for dir in ossec_server_config.analysis.custom_decoders_dir %}
+    <decoder_dir>{{ dir }}</decoder_dir>
+{% endfor %}    
+{% endif %}
+    <!-- Load default decoders -->
+    <decoder>etc/decoder.xml</decoder>
+
+    <!-- Rules  -->
+    <include>rules_config.xml</include>
+    <include>pam_rules.xml</include>
+    <include>sshd_rules.xml</include>
+    <include>telnetd_rules.xml</include>
+    <include>syslog_rules.xml</include>
+    <include>arpwatch_rules.xml</include>
+    <include>symantec-av_rules.xml</include>
+    <include>symantec-ws_rules.xml</include>
+    <include>pix_rules.xml</include>
+    <include>named_rules.xml</include>
+    <include>smbd_rules.xml</include>
+    <include>vsftpd_rules.xml</include>
+    <include>pure-ftpd_rules.xml</include>
+    <include>proftpd_rules.xml</include>
+    <include>ms_ftpd_rules.xml</include>
+    <include>ftpd_rules.xml</include>
+    <include>hordeimp_rules.xml</include>
+    <include>roundcube_rules.xml</include>
+    <include>wordpress_rules.xml</include>
+    <include>cimserver_rules.xml</include>
+    <include>vpopmail_rules.xml</include>
+    <include>vmpop3d_rules.xml</include>
+    <include>courier_rules.xml</include>
+    <include>web_rules.xml</include>
+    <include>web_appsec_rules.xml</include>
+    <include>apache_rules.xml</include>
+    <include>nginx_rules.xml</include>
+    <include>php_rules.xml</include>
+    <include>mysql_rules.xml</include>
+    <include>postgresql_rules.xml</include>
+    <include>ids_rules.xml</include>
+    <include>squid_rules.xml</include>
+    <include>firewall_rules.xml</include>
+    <include>cisco-ios_rules.xml</include>
+    <include>netscreenfw_rules.xml</include>
+    <include>sonicwall_rules.xml</include>
+    <include>postfix_rules.xml</include>
+    <include>sendmail_rules.xml</include>
+    <include>imapd_rules.xml</include>
+    <include>mailscanner_rules.xml</include>
+    <include>dovecot_rules.xml</include>
+    <include>ms-exchange_rules.xml</include>
+    <include>racoon_rules.xml</include>
+    <include>vpn_concentrator_rules.xml</include>
+    <include>spamd_rules.xml</include>
+    <include>msauth_rules.xml</include>
+    <include>mcafee_av_rules.xml</include>
+    <include>trend-osce_rules.xml</include>
+    <include>ms-se_rules.xml</include>
+    <!-- <include>policy_rules.xml</include> -->
+    <include>zeus_rules.xml</include>
+    <include>solaris_bsm_rules.xml</include>
+    <include>vmware_rules.xml</include>
+    <include>ms_dhcp_rules.xml</include>
+    <include>asterisk_rules.xml</include>
+    <include>ossec_rules.xml</include>
+    <include>attack_rules.xml</include>
+    <include>local_rules.xml</include>
+
+{% if ossec_server_config.analysis.custom_rules is defined %}
+    <!-- Custom rules to load -->
+{% for rule in ossec_server_config.analysis.custom_rules %}
+    <include>{{ rule }}</include>
+{% endfor %}    
+{% endif %}    
+  </rules>
+
+{% if ossec_server_config.syscheck is defined %}
+  <syscheck>
+    <!-- Frequency that syscheck is executed -- default every 20 hours -->
+    <frequency>{{ ossec_server_config.syscheck.frequency }}</frequency>
+    <scan_on_start>{{ ossec_server_config.syscheck.scan_on_start }}</scan_on_start>
+    <alert_new_files>{{ ossec_server_config.syscheck.alert_new_files }}</alert_new_files>
+    <auto_ignore>{{ ossec_server_config.syscheck.auto_ignore }}</auto_ignore>
+{% if ossec_server_config.syscheck.directories is defined %}
+    <!-- Directories to check  (perform all possible verifications) -->
+{% for dir in ossec_server_config.syscheck.directories %}
+    <directories realtime="{{ dir.realtime }}" report_changes="{{ dir.diff }}" check_sha1sum="{{ dir.sha1sum }}" check_md5sum="{{ dir.md5sum }}" check_size="{{ dir.size }}" check_owner="{{ dir.owner }}" check_group="{{ dir.group }}" check_perm="{{ dir.perm }}">{{ dir.dirs }}</directories>
+{% endfor %}
+{% endif %}
+  </syscheck>
+{% endif %}
+
+{% if ossec_server_config.rootcheck is defined %}
+  <!-- Rootcheck -->
+  <rootcheck>
+{% if ossec_server_config.rootcheck.disabled is defined %}
+    <disabled>{{ ossec_server_config.rootcheck.disabled }}</disabled>
+{% endif %}
+    <rootkit_files>{{ ossec_server_config.rootcheck.rootkit_files }}</rootkit_files>
+    <rootkit_trojans>{{ ossec_server_config.rootcheck.rootkit_trojans }}</rootkit_trojans>
+{% for audit in ossec_server_config.rootcheck.system_audit %}
+    <system_audit>{{ audit }}</system_audit>
+{% endfor %}    
+{% if ossec_server_config.rootcheck.base_directory is defined %}
+    <base_directory>{{ ossec_server_config.rootcheck.base_directory }}</base_directory>
+{% endif %}
+{% if ossec_server_config.rootcheck.scanall is defined %}
+    <scanall>{{ ossec_server_config.rootcheck.scanall }}</scanall>
+{% endif %}
+{% if ossec_server_config.rootcheck.frequency is defined %}
+    <frequency>{{ ossec_server_config.rootcheck.frequency }}</frequency>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_dev is defined %}
+    <check_dev>{{ ossec_server_config.rootcheck.check_dev }}</check_dev>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_files is defined %}
+    <check_files>{{ ossec_server_config.rootcheck.check_files }}</check_files>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_if is defined %}
+    <check_if>{{ ossec_server_config.rootcheck.check_if }}</check_if>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_pids is defined %}
+    <check_pids>{{ ossec_server_config.rootcheck.check_pids }}</check_pids>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_policy is defined %}
+    <check_policy>{{ ossec_server_config.rootcheck.check_policy }}</check_policy>
+{% endif %}
+{% if ossec_server_config.rootcheck.ports is defined %}
+    <check_ports>{{ ossec_server_config.rootcheck.check_ports }}</check_ports>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_sys is defined %}
+    <check_sys>{{ ossec_server_config.rootcheck.check_sys }}</check_sys>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_trojans is defined %}
+    <check_trojans>{{ ossec_server_config.rootcheck.check_trojans }}</check_trojans>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_unixaudit is defined %}
+    <check_unixaudit>{{ ossec_server_config.rootcheck.check_unixaudit }}</check_unixaudit>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_winapps is defined %}
+    <check_winapps>{{ ossec_server_config.rootcheck.check_winapps }}</check_winapps>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_winaudit is defined %}
+    <check_winaudit>{{ ossec_server_config.rootcheck.check_winaudit }}</check_winaudit>
+{% endif %}
+{% if ossec_server_config.rootcheck.check_winmalware is defined %}
+    <check_winmalware>{{ ossec_server_config.rootcheck.check_winmalware }}</check_winmalware>
+{% endif %}
+{% if ossec_server_config.rootcheck.skip_nfs is defined %}
+    <skip_nfs>{{ ossec_server_config.rootcheck.skip_nfs }}</skip_nfs>
+{% endif %}
+  </rootcheck>
+{% endif %}
+
+{% if ossec_server_config.active_responses is defined %}
+  <!-- Active Response Config -->
+{% for ar in ossec_server_config.active_responses %}
+  <command>
+    <name>{{ ar.name }}</name>
+    <executable>{{ ar.executable }}</executable>
+{% if ar.expect is defined %}
+    <expect>{{ ar.expect }}</expect>
+{% endif %}
+{% if ar.timeout_allowed is defined %}
+    <timeout_allowed>{{ ar.timeout_allowed }}</timeout_allowed>
+{% endif %}
+  </command>
+  
+  <active-response>
+    <command>{{ ar.name }}</command>
+    <location>{{ ar.location }}</location>
+{% if ar.level is defined %}
+    <level>{{ ar.level }}</level>
+{% endif %}
+{% if ar.disabled is defined %}
+    <disabled>{{ ar.disabled }}</disabled>
+{% endif %}
+{% if ar.agent_id is defined %}
+    <agent_id>{{ ar.agent_id }}</agent_id>
+{% endif %}
+{% if ar.rules_id is defined %}
+    <rules_id>{{ ar.rules_id }}</rules_id>
+{% endif %}
+{% if ar.rules_group is defined %}
+    <rules_group>{{ ar.rules_group }}</rules_group>
+{% endif %}
+{% if ar.repeated_offenders is defined %}
+    <repeated_offenders>{{ ar.repeated_offenders }}</repeated_offenders>
+{% endif %}
+{% if ar.timeout is defined %}
+    <timeout>{{ ar.timeout }}</timeout>
+{% endif %}
+  </active-response>
+{% endfor %}
+{% endif %}
+
+{% if ossec_server_config.files is defined %}
+  <!-- Files to monitor (localfiles) -->
+{% for file in ossec_server_config.files %}
+  <localfile>
+    <log_format>{{ file.format }}</log_format>
+    <location>{{ file.location }}</location>
+  </localfile>
+{% endfor %}
+{% endif %}
+{% if apache_log_dir.stat is defined %}
+{% if apache_log_dir.stat.exists == true %}
+  <localfile>
+    <log_format>apache</log_format>
+    <location>{{ apache_log_dir.stat.path }}/access.log</location>
+  </localfile>
+  <localfile>
+    <log_format>apache</log_format>
+    <location>{{ apache_log_dir.stat.path }}/error.log</location>
+  </localfile>
+{% endif %}
+{% endif %}
+{% if nginx_log_dir.stat is defined %}
+{% if nginx_log_dir.stat.exists == true %}
+  <localfile>
+    <log_format>nginx</log_format>
+    <location>{{ nginx_log_dir.stat.path }}/access.log</location>
+  </localfile>
+  <localfile>
+    <log_format>nginx</log_format>
+    <location>{{ nginx_log_dir.stat.path }}/error.log</location>
+  </localfile>
+{% endif %}
+{% endif %}
+{% if ossec_server_config.commands is defined %}
+  <!-- Commands to monitor (localfiles) -->
+{% for cmd in ossec_server_config.commands %}
+  <localfile>
+    <log_format>full_command</log_format>
+    <command>{{ cmd.command }}</command>
+{% if cmd.alias is defined %}
+    <alias>{{ cmd.alias }}</alias>
+{% endif %}
+{% if cmd.frequency is defined %}
+    <frequency>{{ cmd.frequency }}</frequency>
+{% endif %}
+{% if cmd.frequency is defined %}
+    <frequency>{{ cmd.frequency }}</frequency>
+{% endif %}
+{% if cmd.diff is defined and cmd.diff == 'yes' %}
+    <check_diff />
+{% endif %}
+  </localfile>
+{% endfor %}
+{% endif %}
+
+</ossec_config>

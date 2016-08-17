@@ -1,0 +1,87 @@
+<!--
+      - rpm_lookup decoder
+ - Will extract the status and filename (as id)
+ - Examples:
+ - 2016-01-26T13:18:55.940806-06:00 ossec-sec rpm_lookup.sh: OK: /usr/bin/floppy (Regular file) RPM verification passed
+ -->
+<decoder name="rpm_lookup">
+  <program_name>^rpm_lookup.sh$</program_name>
+</decoder>
+
+<decoder name="rpm_lookup_info">
+  <parent>rpm_lookup</parent>
+  <regex>^(\S+): (\S+)</regex>
+  <order>status, id</order>
+</decoder>
+
+<!--
+      - deb_lookup decoder
+ - Will extract the status and filename (as id)
+ - Examples:
+ - 2016-01-26T13:18:55.940806-06:00 ossec-sec deb_lookup.sh: OK: /usr/bin/floppy DEB verification passed
+ -->
+<decoder name="deb_lookup">
+  <program_name>^deb_lookup.sh$</program_name>
+</decoder>
+
+<decoder name="deb_lookup_info">
+  <parent>deb_lookup</parent>
+  <regex>^(\S+): (\S+)</regex>
+  <order>status, id</order>
+</decoder>
+
+<!--
+      - puppetdb_lookup decoder
+ - Will extract the status and filename (as id)
+ - Examples:
+ - 2016-01-26T13:33:20.774122-06:00 ossec-sec puppetdb_lookup.sh: WARNING: File /usr/bin/javac not found for polob.ncsa.illinois.edu
+ -->
+<decoder name="puppetdb_lookup">
+  <program_name>^puppetdb_lookup.sh$</program_name>
+</decoder>
+
+<decoder name="puppetdb_lookup_info">
+  <parent>puppetdb_lookup</parent>
+  <regex>^(\S+): File (\S+)</regex>
+  <order>status, id</order>
+</decoder>
+
+<!--
+      - cymru_lookup decoder
+ - Will extract the status and filename (as id)
+ - Examples:
+ - 2016-01-28T15:17:57.091010-06:00 ossec-sec cymru_lookup.sh: OK: No match found for /usr/bin/gpg2 (4db4cd6a6c007694409c8dfc3cca8017edb8be05) on (repo-sec.ncsa.illinois.edu)
+ - 2016-01-28T15:17:57.091010-06:00 ossec-sec cymru_lookup.sh: WARNING: Malicious hash found for /usr/bin/gpg2 (4db4cd6a6c007694409c8dfc3cca8017edb8be05) on (repo-sec.ncsa.illinois.edu)
+ -->
+<decoder name="cymru_lookup">
+  <program_name>^cymru_lookup.sh$</program_name>
+</decoder>
+
+<decoder name="cymru_lookup_ok_info">
+  <parent>cymru_lookup</parent>
+  <regex>^(\S+): No match found for \S+ \((\S+)\)</regex>
+  <order>status, id</order>
+</decoder>
+
+<decoder name="cymru_lookup_warning_info">
+  <parent>cymru_lookup</parent>
+  <regex>^(\S+): Malicious hash found for \S+ \((\S+)\)</regex>
+  <order>status, id</order>
+</decoder>
+
+<!--
+      - ldap_lookup decoder
+ - Will extract the status and filename (as id)
+ - Examples:
+ - 2016-03-17T10:59:03.331649-05:00 ossec-sec ldap_lookup.sh: OK: NCSA employee lookup for attempted user jschipp: Host 10.2.2.1, Src IP 10.13.32.34, Orig. Alert 1458229125.2049519
+ - 2016-03-17T10:59:03.331649-05:00 ossec-sec ldap_lookup.sh: WARNING: NCSA employee lookup for attempted user carltonbanks: Host 10.1.1.1, Src IP 23.234.54.32, Orig. Alert 1458229125.2049519
+ -->
+<decoder name="ldap_lookup">
+  <program_name>^ldap_lookup.sh$</program_name>
+</decoder>
+
+<decoder name="ldap_lookup_info">
+  <parent>ldap_lookup</parent>
+  <regex>^(\S+): NCSA employee lookup for attempted user (\w+): Host (\d+.\d+.\d+.\d+), Src IP (\d+.\d+.\d+.\d+), </regex>
+  <order>status, user, dstip, srcip</order>
+</decoder>

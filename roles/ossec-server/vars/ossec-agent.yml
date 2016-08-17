@@ -1,0 +1,101 @@
+ossec_agent_configs:
+  - type: os
+    type_value: linux
+    syscheck:
+      frequency: 43200
+      scan_on_start: 'yes'
+      alert_new_files: 'yes'
+      auto_ignore: 'no'
+      ignore_files:
+        - /etc/mtab
+        - /etc/mnttab
+        - /etc/hosts.deny
+        - /etc/mail/statistics
+        - /etc/svc/volatile
+      directories:
+        - dirs: /etc,/bin,/sbin,/usr/bin,/usr/sbin
+          realtime: 'yes'
+          diff: 'no'
+          sha1sum: 'yes'
+          md5sum: 'no'
+          size: 'yes'
+          owner: 'yes'
+          group: 'yes'
+          perm: 'yes'
+    rootcheck: 
+      disabled: 'no'
+      base_directory: '/var/ossec'
+      rootkit_files: '/var/ossec/etc/shared/rootkit_files.txt'
+      rootkit_trojans: '/var/ossec/etc/shared/rootkit_trojans.txt'
+      system_audit:
+        - /var/ossec/etc/shared/system_audit_rcl.txt
+        - /var/ossec/etc/shared/{{ cis_distribution_filename }}
+      scanall: 'no'
+      frequency: '36000'
+      check_dev: 'yes'
+      check_files: 'yes'
+      check_if: 'yes'
+      check_pids: 'yes'
+      check_ports: 'yes'
+      check_sys: 'yes'
+      check_trojans: 'yes'
+      check_unixaudit: 'yes'
+      check_winapps: 'yes'
+      check_winaudit: 1
+      check_winmalware: 'yes'
+      #check_policy: 'yes' - Not available in 2.8.1
+      #skip_nfs: 'no' - Not available in 2.8.1
+    commands:
+      - command: 'last -n 5'
+        diff: yes
+  - type: profile
+    type_value: debian
+    files:
+      - location: '/var/log/syslog'
+        format: 'syslog'
+      - location: '/var/log/auth.log'
+        format: 'syslog'
+      - location: '/var/log/dpkg.log'
+        format: 'syslog'
+      - location: '/var/log/mail.log'
+        format: 'syslog'
+      - location: '/var/log/dmesg'
+        format: 'syslog'
+      - location: '/var/ossec/log/deb_lookup.log'
+        format: 'syslog'
+  - type: profile
+    type_value: redhat
+    files:
+      - location: '/var/log/messages'
+        format: 'syslog'
+      - location: '/var/log/secure'
+        format: 'syslog'
+      - location: '/var/log/yum.log'
+        format: 'syslog'
+      - location: '/var/log/maillog'
+        format: 'syslog'
+      - location: '/var/log/dmesg'
+        format: 'syslog'
+      - location: '/var/ossec/log/rpm_lookup.log'
+        format: 'syslog'
+  - type: profile
+    type_value: nginx
+    files:
+      - location: '/var/log/nginx/access.log'
+        format: 'apache'
+      - location: '/var/log/nginx/error.log'
+        format: 'apache'
+  - type: profile
+    type_value: apache-debian
+    files:
+      - location: '/var/log/apache2/access.log'
+        format: 'apache'
+      - location: '/var/log/apache2/error.log'
+        format: 'apache'
+  - type: profile
+    type_value: apache-redhat
+    files:
+      - location: '/var/log/httpd/access.log'
+        format: 'apache'
+      - location: '/var/log/httpd/error.log'
+        format: 'apache'

@@ -1,0 +1,10 @@
+---
+
+- name: restart ossec-server
+  service: name={{ ossec }} state=restarted enabled=yes
+
+- name: restart ossec-authd
+  service: name=ossec-authd state=restarted enabled=yes
+
+- name: make cdb
+  command: "/var/ossec/bin/ossec-makelists -c /var/ossec/etc/ossec.conf"

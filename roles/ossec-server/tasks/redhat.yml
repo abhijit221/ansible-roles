@@ -1,0 +1,38 @@
+---
+
+- name: RedHat | Set some facts
+  set_fact:
+    ansible_distribution: centos
+    ossec_config: ossec-server.conf
+    ossec: ossec-hids
+    logs:
+      system:
+        main: '/var/log/messages'
+        auth: '/var/log/secure'
+        pkgmgr: '/var/log/yum.log'
+        mail: '/var/log/maillog'
+        dmesg: '/var/log/dmesg'
+      ossec:
+        pkg: '/var/ossec/logs/rpm_lookup.log'
+
+- name: RedHat | Install atomicorp repo
+  yum: name=https://www.atomicorp.com/channels/atomic/centos/{{ansible_distribution_major_version}}/x86_64/RPMS/atomic-release-1.0-19.el{{ansible_distribution_major_version}}.art.noarch.rpm state=present
+
+- name: RedHat | Install epel repo
+  yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ansible_distribution_major_version}}.noarch.rpm state=present
+
+- name: RedHat | Install ossec-hids-server
+  yum: pkg={{ item }} state=present
+  with_items:
+    - ossec-hids
+    - ossec-hids-server
+
+- name: RedHat | Checking for Apache Log Directory
+  stat: path=/var/log/httpd
+  register: apache_log_dir
+  ignore_errors: True
+
+- name: RedHat | Checking for NGinx Log Directory
+  stat: path=/var/log/nginx
+  register: nginx_log_dir
+  ignore_errors: True
